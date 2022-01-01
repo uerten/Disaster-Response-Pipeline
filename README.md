@@ -11,8 +11,19 @@ Udacity Data Science Nanodegree Program Project-2
 
 ## Installation <a name="installation"></a>
 
-Code runs with Python 3.9 and requires some libraries. In order to install libraries:
+1. Code runs with Python 3.9 and requires some libraries. In order to install libraries:
 `pip install -r requirements.txt`
+
+2. Run the following commands in the project's root directory to set up your database and model.
+
+    - To run ETL pipeline that cleans data and stores in database
+        `python data/process_data.py data/disaster_messages.csv data/disaster_categories.csv data/DisasterResponse.db`
+    - To run ML pipeline that trains classifier and saves
+        `python models/train_classifier.py data/DisasterResponse.db models/classifier.pkl`
+
+3. Go to `app` directory: `cd app`
+
+4. Run your web app: `python run.py`
 
 ## Project Motivation <a name="motivation"></a>
 
