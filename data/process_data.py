@@ -47,6 +47,8 @@ def clean_data(df):
     df = pd.concat([df, categories], axis=1)
     # drop duplicates
     df.drop_duplicates(subset=['message', 'original'], inplace=True)
+    # change category values to boolean. This will also convert values higher than 1 to "True"
+    df.loc[:, ~df.columns.isin(['id', 'message', 'original', 'genre'])] = df.loc[:, ~df.columns.isin(['id', 'message', 'original', 'genre'])].astype('bool')
     return df
 
 def save_data(df, database_filename):
