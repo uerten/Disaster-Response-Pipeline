@@ -23,9 +23,7 @@ Udacity Data Science Nanodegree Program Project-2
     - To run ML pipeline that trains classifier and saves
         `python models/train_classifier.py data/DisasterResponse.db models/classifier.pkl`
 
-3. Go to `app` directory: `cd app`
-
-4. Run your web app: `python run.py`
+3. Run your web app: `python app/run.py`
 
 ## Project Motivation <a name="motivation"></a>
 
