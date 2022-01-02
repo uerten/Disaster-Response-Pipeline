@@ -44,10 +44,10 @@ This project initiates the web app which processes the text messages during disa
 ## Results <a name="results"></a>
 
 ### Screen #1: Visualization of dataset
-
+![image](https://user-images.githubusercontent.com/58724617/147878466-537359f7-1230-419d-a522-f5c7433308e5.png)
 
 ### Screen #2: Classification user interface
-
+![image](https://user-images.githubusercontent.com/58724617/147878493-a31d197e-f76c-4e4f-ac7c-129b51059428.png)
 
 ## Licensing <a name="licensing"></a>
 Must give credit to [Appen](https://appen.com/) for the data they provide.
