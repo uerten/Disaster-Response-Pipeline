@@ -29,7 +29,7 @@ Udacity Data Science Nanodegree Program Project-2
 
 ## Project Motivation <a name="motivation"></a>
 
-Second project of Udacity Data Science Nanodegree Program. Three main topics are covered in this project:
+This project initiates the web app which processes the text messages during disaster in order to classify messages into several categories. Then they can be send to the responsible teams. Three main topics are covered in this project:
 1. Create ETL pipeline to extract, clean, tokenize and load data to ML pipeline
 2. Create ML pipeline to extract feature with estimator and transformer and build ML model. Optimize hyper-parameters with GridSearch
 3. Build a Flask web app to display results
@@ -42,7 +42,12 @@ Second project of Udacity Data Science Nanodegree Program. Three main topics are
 4. **data:** This folder contains samples messages and categories datasets in csv format.
 
 ## Results <a name="results"></a>
-soon
+
+### Screen #1: Visualization of dataset
+
+
+### Screen #2: Classification user interface
+
 
 ## Licensing <a name="licensing"></a>
 Must give credit to [Appen](https://appen.com/) for the data they provide.
