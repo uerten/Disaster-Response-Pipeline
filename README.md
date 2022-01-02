@@ -11,8 +11,10 @@ Udacity Data Science Nanodegree Program Project-2
 
 ## Installation <a name="installation"></a>
 
-1. Code runs with Python 3.9 and requires some libraries. In order to install libraries:
-`pip install -r requirements.txt`
+1. Code runs Anaconda distribution for Python 3.9 and requires the libraries below:
+    1. `sqlalchemy`
+    2. `nltk`
+    3. `plotly`
 
 2. Run the following commands in the project's root directory to set up your database and model.
 
@@ -34,7 +36,10 @@ Second project of Udacity Data Science Nanodegree Program. Three main topics are
 
 ## File Description <a name="files"></a>
 
-soon
+1. **data/process_data.py:** Data cleaning pipeline which extracts data from csv files, merges and cleans datasets and then stores it in SQLite database.
+2. **model/train_classifier.py:** Machine Learning pipeline which loads data from SQLite database, tokenize and splits the data into training and test datasets. 
+3. **app:** Flask app which contains dashboard and classification user interface.
+4. **data:** This folder contains samples messages and categories datasets in csv format.
 
 ## Results <a name="results"></a>
 soon

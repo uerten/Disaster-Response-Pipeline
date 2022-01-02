@@ -3,13 +3,37 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 def load_data(messages_filepath, categories_filepath):
+    """
+    Input:
+    messages_filepath: Filepath for the csv file containing messages. [string]
+    categories_filepath: Filepath for the csv file containing categories. [string]
+
+    Output:
+    df: Dataframe containing messages and respective categories. [dataframe]
+
+    Description:
+    Loads datasets and merges into one dataframe.
+    """
     messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
     df = pd.merge(messages, categories, how='left', on='id')
     return df
 
 def clean_data(df):
+    """
+    Input:
+    df: Dataframe containing messages and respective categories. [dataframe]
+
+    Output:
+    df: Dataframe containing cleaned messages and categories. [dataframe]
+
+    Description:
+    Cleans dataframe with removing unneccesary columns, duplicates and text artifacts.
+    """
+    # expand categories to one column per category
     categories = df['categories'].astype(str).str.split(';',expand=True)
+
+    # extract column names with slicing upto second to last character of each string
     categories.columns = [x[:-2] for x in categories.iloc[0]]
     
     for column in categories:
@@ -26,6 +50,17 @@ def clean_data(df):
     return df
 
 def save_data(df, database_filename):
+    """
+    Input:
+    df: Dataframe containing cleaned messages and categories. [dataframe]
+    database_filename: Filepath for the output database. [string]
+    
+    Output:
+    None
+
+    Description:
+    Saves the cleaned data to database
+    """
     engine = create_engine('sqlite:///{}'.format(database_filename))
     df.to_sql('disaster', engine, index=False)  
 

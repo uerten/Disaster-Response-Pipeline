@@ -22,16 +22,45 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.model_selection import GridSearchCV
 
 def load_data(database_filepath):
+    """
+    Input:
+    database_filepath: Filepath for the db. [string]
+
+    Output:
+    X: Feature data. [dataframe]
+    Y: Label data. [dataframe]
+    category_names: Category names. [list of strings]
+
+    Description:
+    Load data from db and returns feature and label data and list of category names
+    """
+    # load data from database
     engine = create_engine('sqlite:///{}'.format(database_filepath))
     df = pd.read_sql("SELECT * FROM disaster", engine)
+
+    # Select feature
     X = df['message']
+
+    # Select labels
     Y = df.drop(['message', 'genre', 'id', 'original'], axis=1)
+    
+    # Select category names
     category_names = Y.columns.values
     
     return X, Y, category_names
 
 
 def tokenize(text):
+    """
+    Input:
+    text: Collected message. [string]
+
+    Output:
+    tokens: List of strings containing normalized and stemmed tokens. [list of string]
+
+    Description:
+    This function normalize, tokenize and stem the texts.
+    """
     url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
     detected_urls = re.findall(url_regex, text)
     for url in detected_urls:
@@ -49,7 +78,9 @@ def tokenize(text):
 
 
 class StartingVerbExtractor(BaseEstimator, TransformerMixin):
-
+    """
+    Custom transformer that creates feature based on verb presence in text
+    """
     def starting_verb(self, text):
         sentence_list = nltk.sent_tokenize(text)
         for sentence in sentence_list:
@@ -67,7 +98,9 @@ class StartingVerbExtractor(BaseEstimator, TransformerMixin):
         return pd.DataFrame(X_tagged)
 
 def build_model():
-
+    """
+    Build a ML pipeline and optimize with GridSearch
+    """
     pipeline = Pipeline([
         ('features', FeatureUnion([
 
@@ -92,6 +125,19 @@ def build_model():
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
+    """
+    Input:
+    model: ML model. [model object]
+    X_test: Dataframe containing test features. [dataframe]
+    Y_test: Dataframe containing test labels. [dataframe]
+    category_names: Category names. [list of strings]
+
+    Output:
+    Classification report and best parameters
+
+    Description:
+    Prints classification report and best parameters selected from GridSearch
+    """
     y_pred = model.predict(X_test)
     for i in range(len(Y_test.columns)):
         print(classification_report(Y_test.iloc[i], y_pred[i]))
@@ -99,6 +145,17 @@ def evaluate_model(model, X_test, Y_test, category_names):
 
 
 def save_model(model, model_filepath):
+    """
+    Input:
+    model: ML model. [model object]
+    model_filepath: Filepath for where ML model will be saved. [string]
+
+    Output:
+    None
+
+    Description:
+    Saves ML model in pickle format.
+    """
     pickle.dump(model, open(model_filepath, 'wb'))
 
 

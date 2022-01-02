@@ -1,6 +1,8 @@
 import nltk
-nltk.download(['punkt', 'wordnet', 'averaged_perceptron_tagger'])
+nltk.download(['punkt', 'wordnet', 'averaged_perceptron_tagger', 'stopwords'])
+from nltk.corpus import stopwords
 
+import re
 import json
 import plotly
 import pandas as pd
@@ -10,24 +12,41 @@ from nltk.tokenize import word_tokenize
 
 from flask import Flask
 from flask import render_template, request, jsonify
-from plotly.graph_objects import Bar
+from plotly.graph_objects import Bar, Pie
 import joblib
 from sqlalchemy import create_engine
 from sklearn.base import BaseEstimator, TransformerMixin
-import re
-
 
 app = Flask(__name__)
 
 def tokenize(text):
+    """
+    Input:
+    text: Collected message. [string]
+
+    Output:
+    tokens: List of strings containing normalized and stemmed tokens. [list of string]
+
+    Description:
+    This function normalize, tokenize and stem the texts.
+    """
+
     url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+    
+    # list of all detected urls
     detected_urls = re.findall(url_regex, text)
+    
+    # replace all urls with "urlplaceholder"
     for url in detected_urls:
         text = text.replace(url, "urlplaceholder")
 
+    # tokenize the text
     tokens = word_tokenize(text)
+
+    # lemmatizer initation
     lemmatizer = WordNetLemmatizer()
 
+    # iterate through each token and normalize case, lemmatize and remove white spaces
     clean_tokens = []
     for tok in tokens:
         clean_tok = lemmatizer.lemmatize(tok).lower().strip()
@@ -73,18 +92,28 @@ model = joblib.load(r".\models\classifier.pkl")
 def index():
     
     # extract data needed for visuals
-    # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
     
+    # Plot category by counts and percentages
+    category_counts = df.iloc[:,4:].sum(axis = 0).sort_values(ascending = False)
+    category_names = category_counts.index.values
+
+    # Pie chart frequency of words
+    word_list = df['message'].str.lower().str.split().explode().reset_index(drop=True)
+    top_words = word_list.loc[~word_list.isin(stopwords.words("english"))].value_counts()[:10]
+    word_names = top_words.index.values
+    
     # create visuals
-    # TODO: Below is an example - modify to create your own visuals
     graphs = [
         {
             'data': [
                 Bar(
                     x=genre_names,
-                    y=genre_counts
+                    y=genre_counts,
+                    text = genre_counts / genre_counts.sum(),
+                    hoverinfo = 'y+text',
+                    hovertemplate = "Percent: %{text:.1f}% | Counts: %{y}"
                 )
             ],
 
@@ -95,6 +124,48 @@ def index():
                 },
                 'xaxis': {
                     'title': "Genre"
+                }
+            }
+        },
+        {
+            'data': [
+                Bar(
+                    x=category_names,
+                    y=category_counts,
+                    text = category_counts / category_counts.sum(),
+                    hoverinfo = 'y+text',
+                    hovertemplate = "Percent: %{text:.1f}% | Counts: %{y}"
+                )
+            ],
+
+            'layout': {
+                'title': 'Distribution of Message Categories',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Category"
+                }
+            }
+        },
+        {
+            'data': [
+                Pie(
+                    labels=word_names,
+                    values=top_words,
+                    #text = top_words / top_words.sum(),
+                    hoverinfo = 'label+percent'
+                    #hovertemplate = "Percent: %{text:.2f}% | Counts: %{value}"
+                )
+            ],
+
+            'layout': {
+                'title': 'Distribution of Words',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Words"
                 }
             }
         }
