@@ -1,3 +1,6 @@
+import nltk
+nltk.download(['punkt', 'wordnet', 'averaged_perceptron_tagger'])
+
 import json
 import plotly
 import pandas as pd
@@ -7,14 +10,21 @@ from nltk.tokenize import word_tokenize
 
 from flask import Flask
 from flask import render_template, request, jsonify
-from plotly.graph_objs import Bar
-from sklearn.externals import joblib
+from plotly.graph_objects import Bar
+import joblib
 from sqlalchemy import create_engine
+from sklearn.base import BaseEstimator, TransformerMixin
+import re
 
 
 app = Flask(__name__)
 
 def tokenize(text):
+    url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+    detected_urls = re.findall(url_regex, text)
+    for url in detected_urls:
+        text = text.replace(url, "urlplaceholder")
+
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
 
@@ -25,13 +35,37 @@ def tokenize(text):
 
     return clean_tokens
 
-# load data
-engine = create_engine('sqlite:///../data/DisasterResponse.db')
+
+class StartingVerbExtractor(BaseEstimator, TransformerMixin):
+
+    def starting_verb(self, text):
+        sentence_list = nltk.sent_tokenize(text)
+        for sentence in sentence_list:
+            pos_tags = nltk.pos_tag(tokenize(sentence))
+            first_word, first_tag = pos_tags[0]
+            if first_tag in ['VB', 'VBP'] or first_word == 'RT':
+                return True
+        return False
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        X_tagged = pd.Series(X).apply(self.starting_verb)
+        return pd.DataFrame(X_tagged)
+
+# load data on Linux
+# engine = create_engine('sqlite:///../data/DisasterResponse.db')
+
+# load data on Windows
+engine = create_engine('sqlite:///.\data\DisasterResponse.db')
 df = pd.read_sql_table('disaster', engine)
 
-# load model
-model = joblib.load("../models/classifier.pkl")
+# load model on Linux
+# model = joblib.load("../models/classifier.pkl")
 
+# load model on Windows
+model = joblib.load(r".\models\classifier.pkl")
 
 # index webpage displays cool visuals and receives user input text for model
 @app.route('/')
